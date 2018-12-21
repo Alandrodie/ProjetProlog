@@ -606,3 +606,36 @@ ligne(t4, tramway,[aulnay_sous_bois,
 		   remise_a_jorelle, 
 		   bondy], 
       aulnay_sous_bois, bondy).
+
+
+create_nbstations :-
+	
+	assert((nb_station(X,L) :- ligne(X,_,Y,_,_),
+	length(Y,L) )).
+
+
+calculDistance(St,[St|LSt],LSt) :-!.
+	
+
+calculDistance(St,[S|LSt],LStf) :-
+	calculDistance(St,LSt,LStf).
+
+create_numstation :-
+
+	forall(ligne(Nom,_,LSt,T1,T2), 
+		forall(member(St,LSt),
+			(calculDistance(St,LSt,LStf),
+			length(LSt,D2),
+			nb_station(Nom,Nb),	
+			D1 is Nb-D2,
+			assert(num_stations(St,Nom,T1,D1,T2,D2))
+			
+		))
+	).
+
+
+
+
+
+
+
