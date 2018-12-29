@@ -609,32 +609,46 @@ ligne(t4, tramway,[aulnay_sous_bois,
 
 
 create_nbstations :-
-	
 	assert((nb_station(X,L) :- ligne(X,_,Y,_,_),
 	length(Y,L) )).
 
 
-calculDistance(St,[St|LSt],LSt) :-!.
-	
 
-calculDistance(St,[S|LSt],LStf) :-
-	calculDistance(St,LSt,LStf).
+/*
+coupeLStation renvoie vraie si LStf est la liste des stations depuis  la station St jusqu'a la fin le la liste Lst
+*/
+coupeLStation(St,[St|LSt],[St|LSt]) :-!.
+coupeLStation(St,[_|LSt],LStf) :-
+	coupeLStation(St,LSt,LStf).
 
 create_numstation :-
 
-	forall(ligne(Nom,_,LSt,T1,T2), 
+	forall(ligne(Nom,_,LSt,T2,T1), 
 		forall(member(St,LSt),
-			(calculDistance(St,LSt,LStf),
-			length(LSt,D2),
-			nb_station(Nom,Nb),	
-			D1 is Nb-D2,
-			assert(num_stations(St,Nom,T1,D1,T2,D2))
-			
-		))
+			(coupeLStation(St,LSt,LStf),
+				length(LStf,D2),
+				nb_station(Nom,Nb),	
+				D1 is Nb-D2+1,
+				assert(num_stations(St,Nom,T1,D1,T2,D2))
+			)
+		)
 	).
 
+station(Station,LLignes) :- !, 
+	findall(X,num_stations(Station,X,_,_,_,_), LLignes).
 
+/*
+	intersectionStation renvoie vraie si Station se situe sur le parcours de Ligne1 et de Ligne2
+*/
+intersectionStation(Ligne1,Ligne2,Station) :- 
+	num_stations(Station,Ligne1,_,_,_,_),
+	num_stations(Station,Ligne2,_,_,_,_).
+	
+	
+intersection(Ligne1, Ligne2, LStations) :-
+	findall(X,intersectionStation(Ligne1,Ligne2,X), LStations).
 
+correspondance(Ligne,LLignesStations) :-
 
 
 
