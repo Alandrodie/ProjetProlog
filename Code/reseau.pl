@@ -648,8 +648,49 @@ intersectionStation(Ligne1,Ligne2,Station) :-
 intersection(Ligne1, Ligne2, LStations) :-
 	findall(X,intersectionStation(Ligne1,Ligne2,X), LStations).
 
-correspondance(Ligne,LLignesStations) :-
 
+
+
+
+
+
+correspondanceAux(Ligne,[L2, Station]) :-
+	intersectionStation(Ligne,L2,Station), 
+	dif(L2,Ligne).
+
+
+correspondance(Ligne,LLignesStations) :- 
+	setof(X,correspondanceAux(Ligne,X), LLignesStations).
+
+
+
+dessert(Ligne,Depart,Arrivee) :- 
+	ligne(Ligne,_,ListeS,_,_), 
+	member(Depart,ListeS),
+	member(Arrivee,ListeS).
+
+
+	
+    /*Dir = Dir1*/
+nbarret(Ligne, Depart, Arrivee, Dir, NbArrets):- dessert(Ligne,Depart,Arrivee),
+  	num_stations(Depart, Ligne, Dir, NumD1, Dir2, NumD2),num_stations(Arrivee, Ligne, Dir, NumD1b, Dir2, NumD2b),
+		NumD1b>NumD1,!,
+		NbArrets is NumD1b-NumD1.
+	
+/*dir = dir1 mais arrive avant le depart ducoup faut faire le demi tour */
+nbarret(Ligne, Depart, Arrivee, Dir, NbArrets):- 
+    num_stations(Depart, Ligne, Dir, NumD1, Dir2, NumD2),num_stations(Arrivee, Ligne, Dir, NumD1b, Dir2, NumD2b), !,
+		NbArrets is NumD2+NumD2b-1.
+      
+ /*dir = dir2 mais ça marche bien*/     
+nbarret(Ligne, Depart, Arrivee, Dir, NbArrets):- 
+    num_stations(Depart, Ligne, Dir1, NumD1, Dir, NumD2),num_stations(Arrivee, Ligne, Dir1, NumD1b, Dir, NumD2b),
+		NumD2b<NumD2, !, 
+		NbArrets is NumD1+NumD1b-1.
+ /*dir == dir2 + el famoso demi tour*/  
+nbarret(Ligne, Depart, Arrivee, Dir, NbArrets):- 
+    num_stations(Depart, Ligne, Dir1, NumD1, Dir, NumD2),num_stations(Arrivee, Ligne, Dir1, NumD1b, Dir, NumD2b), !,
+		NbArrets is NumD2b-NumD2.
 
 
 
